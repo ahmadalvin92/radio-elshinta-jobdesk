@@ -1,0 +1,13 @@
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/elshinta_jobdesk
+backend/database/*.sqlite
+backend/storage/*.key
+backend/storage/logs/*.log
+backend/bootstrap/cache/*.php
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+.env
+.DS_Store

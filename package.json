@@ -1,0 +1,10 @@
+{
+  "name": "radio-elshinta-jobdesk",
+  "private": true,
+  "description": "Aplikasi internal Radio Elshinta untuk jobdesk harian, approval user, manage user, dan rekap PDF.",
+  "scripts": {
+    "backend": "cd backend && php artisan serve --port=8000",
+    "frontend": "cd frontend && npm run dev",
+    "migrate": "cd backend && php artisan migrate --seed"
+  }
+}
