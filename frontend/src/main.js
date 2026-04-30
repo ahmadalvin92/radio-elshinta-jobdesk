@@ -28,6 +28,14 @@ const state = {
   passwordMessage: "",
   editingUserId: null,
   userMessage: "",
+  editingJobId: null,
+  jobMessage: "",
+  dashboardFilter: {
+    period: "all",
+    date: new Date().toISOString().slice(0, 10),
+    week: getCurrentWeekValue(),
+    month: new Date().toISOString().slice(0, 7),
+  },
   rekapFilter: {
     period: "all",
     date: new Date().toISOString().slice(0, 10),
@@ -171,6 +179,8 @@ function setActiveView(view) {
   state.passwordMessage = "";
   state.editingUserId = null;
   state.userMessage = "";
+  state.editingJobId = null;
+  state.jobMessage = "";
   renderDashboard();
 }
 
@@ -209,8 +219,8 @@ function getCurrentWeekValue() {
   return `${target.getUTCFullYear()}-W${String(weekNumber).padStart(2, "0")}`;
 }
 
-function getRekapJobs(jobs) {
-  const { period, date, week, month } = state.rekapFilter;
+function getFilteredJobs(jobs, filter) {
+  const { period, date, week, month } = filter;
 
   if (period === "day") {
     return jobs.filter((job) => String(job.job_date ?? "").slice(0, 10) === date);
@@ -225,6 +235,10 @@ function getRekapJobs(jobs) {
   }
 
   return jobs;
+}
+
+function getRekapJobs(jobs) {
+  return getFilteredJobs(jobs, state.rekapFilter);
 }
 
 function getWeekValue(value) {
@@ -413,12 +427,18 @@ function renderDashboard() {
   document.querySelector("#toggle-password-button").addEventListener("click", togglePasswordForm);
   document.querySelector("#password-form")?.addEventListener("submit", handleChangePassword);
   bindPasswordToggles();
+  document.querySelector("#dashboard-filter-form")?.addEventListener("change", handleDashboardFilterChange);
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => setActiveView(button.dataset.view));
   });
 
   if (isAdmin()) {
     document.querySelector("#job-form")?.addEventListener("submit", handleSubmit);
+    document.querySelector("#cancel-job-edit")?.addEventListener("click", () => {
+      state.editingJobId = null;
+      state.jobMessage = "";
+      renderDashboard();
+    });
     document.querySelector("#export-pdf")?.addEventListener("click", () => {
       window.open(`${activeApiBaseUrl}/api/daily-jobs/export-pdf?${getRekapQueryString()}`, "_blank");
     });
@@ -441,6 +461,17 @@ function renderDashboard() {
     });
     document.querySelectorAll("[data-delete-user]").forEach((button) => {
       button.addEventListener("click", () => handleDeleteUser(button.dataset.deleteUser));
+    });
+    document.querySelectorAll("[data-edit-job]").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.editingJobId = Number(button.dataset.editJob);
+        state.jobMessage = "";
+        state.activeView = "input";
+        renderDashboard();
+      });
+    });
+    document.querySelectorAll("[data-delete-job]").forEach((button) => {
+      button.addEventListener("click", () => handleDeleteJob(button.dataset.deleteJob));
     });
   }
 
@@ -585,7 +616,9 @@ function renderUserRow(user) {
 }
 
 function renderDashboardView(jobs, stats) {
-  const latestJobs = jobs.slice(0, 6);
+  const dashboardJobs = getFilteredJobs(jobs, state.dashboardFilter);
+  const dashboardStats = getStats(dashboardJobs);
+  const latestJobs = dashboardJobs.slice(0, 6);
 
   return `
     <section class="hero">
@@ -595,13 +628,14 @@ function renderDashboardView(jobs, stats) {
       </div>
     </section>
 
-    ${renderStats(stats)}
+    ${renderStats(dashboardStats)}
 
     <section class="panel">
       <div class="panel-heading">
         <h3>${isAdmin() ? "Aktivitas terbaru" : "Pekerjaan terbaru saya"}</h3>
-        <span>${latestJobs.length} data</span>
+        <span>${dashboardJobs.length} data sesuai filter</span>
       </div>
+      ${renderDashboardFilters()}
       <div class="jobs">
         ${latestJobs.length ? latestJobs.map(renderJobCard).join("") : '<div class="empty">Belum ada pekerjaan.</div>'}
       </div>
@@ -668,11 +702,19 @@ function renderRekapView(jobs, stats) {
   `;
 }
 
+function renderDashboardFilters() {
+  return renderPeriodFilters("dashboard-filter-form", state.dashboardFilter);
+}
+
 function renderRekapFilters() {
-  const { period, date, week, month } = state.rekapFilter;
+  return renderPeriodFilters("rekap-filter-form", state.rekapFilter);
+}
+
+function renderPeriodFilters(formId, filter) {
+  const { period, date, week, month } = filter;
 
   return `
-    <form id="rekap-filter-form" class="filter-bar">
+    <form id="${h(formId)}" class="filter-bar">
       <label>
         Periode
         <select name="period">
@@ -741,51 +783,62 @@ function renderRekapRow(job) {
 }
 
 function renderJobForm() {
+  const editingJob = state.jobs.find((job) => Number(job.id) === Number(state.editingJobId));
+  const selectedAssetId = editingJob?.computer_asset_id ?? editingJob?.computer_asset?.id ?? state.assets[0]?.id;
+  const jobDate = String(editingJob?.job_date ?? new Date().toISOString()).slice(0, 10);
+  const startTime = String(editingJob?.start_time ?? "09:00").slice(0, 5);
+  const endTime = String(editingJob?.end_time ?? "10:00").slice(0, 5);
+
   return `
     <form id="job-form" class="panel">
       <div class="panel-heading">
-        <h3>Input pekerjaan</h3>
-        <span>Role admin</span>
+        <h3>${editingJob ? "Edit pekerjaan" : "Input pekerjaan"}</h3>
+        <span>${editingJob ? "Update jobdesk admin" : "Role admin"}</span>
       </div>
+      ${state.jobMessage ? `<div class="notice">${h(state.jobMessage)}</div>` : ""}
       <label>
         User / Komputer
         <select name="computer_asset_id" required>
-          ${state.assets.map((asset) => `<option value="${asset.id}">${h(asset.pc_name)}</option>`).join("")}
+          ${state.assets.map((asset) => `<option value="${asset.id}" ${Number(selectedAssetId) === Number(asset.id) ? "selected" : ""}>${h(asset.pc_name)}</option>`).join("")}
         </select>
       </label>
       <div class="grid-two">
         <label>
           Tanggal
-          <input type="date" name="job_date" required value="${new Date().toISOString().slice(0, 10)}" />
+          <input type="date" name="job_date" required value="${h(jobDate)}" />
         </label>
         <label>
           Jenis
           <select name="work_type" required>
-            ${jobTypes.map((type) => `<option>${h(type)}</option>`).join("")}
+            ${jobTypes.map((type) => `<option ${editingJob?.work_type === type ? "selected" : ""}>${h(type)}</option>`).join("")}
           </select>
         </label>
       </div>
       <div class="grid-two">
         <label>
           Jam mulai
-          <input type="time" name="start_time" required value="09:00" />
+          <input type="time" name="start_time" required value="${h(startTime)}" />
         </label>
         <label>
           Jam selesai
-          <input type="time" name="end_time" required value="10:00" />
+          <input type="time" name="end_time" required value="${h(endTime)}" />
         </label>
       </div>
       <label>
         Keterangan
-        <textarea name="description" rows="4" required placeholder="Contoh: Backup data user dan cek hasil sinkronisasi."></textarea>
+        <textarea name="description" rows="4" required placeholder="Contoh: Backup data user dan cek hasil sinkronisasi.">${h(editingJob?.description ?? "")}</textarea>
       </label>
-      <button type="submit">Simpan jobdesk</button>
+      <div class="form-actions">
+        <button type="submit">${editingJob ? "Simpan Perubahan" : "Simpan jobdesk"}</button>
+        ${editingJob ? '<button type="button" class="secondary" id="cancel-job-edit">Batal Edit</button>' : ""}
+      </div>
     </form>
   `;
 }
 
 function renderJobCard(job) {
   const canApprove = !isAdmin() && job.status === "pending";
+  const canManage = isAdmin();
 
   return `
     <article class="job">
@@ -802,6 +855,12 @@ function renderJobCard(job) {
         <div class="approval-actions">
           <button type="button" data-action="approve" data-id="${job.id}">Approve</button>
           <button type="button" class="secondary" data-action="reject" data-id="${job.id}">Reject</button>
+        </div>
+      ` : ""}
+      ${canManage ? `
+        <div class="approval-actions">
+          <button type="button" class="small-button" data-edit-job="${job.id}">Edit</button>
+          <button type="button" class="small-button danger" data-delete-job="${job.id}">Delete</button>
         </div>
       ` : ""}
     </article>
@@ -833,21 +892,62 @@ async function handleSubmit(event) {
   event.preventDefault();
 
   const formData = new FormData(event.target);
+  const editingJobId = state.editingJobId;
   const payload = {
     ...Object.fromEntries(formData.entries()),
     admin_id: state.currentUser.id,
+    actor_id: state.currentUser.id,
+    status: editingJobId ? state.jobs.find((job) => Number(job.id) === Number(editingJobId))?.status ?? "pending" : "pending",
   };
 
   try {
-    const saved = await fetchJson("/api/daily-jobs", {
-      method: "POST",
+    const saved = await fetchJson(editingJobId ? `/api/daily-jobs/${editingJobId}` : "/api/daily-jobs", {
+      method: editingJobId ? "PUT" : "POST",
       body: JSON.stringify(payload),
     });
 
-    state.jobs = [saved.data ?? saved, ...state.jobs];
+    const savedJob = saved.data ?? saved;
+
+    if (editingJobId) {
+      state.jobs = state.jobs.map((job) => Number(job.id) === Number(editingJobId) ? savedJob : job);
+      state.jobMessage = "Jobdesk berhasil diupdate.";
+    } else {
+      state.jobs = [savedJob, ...state.jobs];
+      state.jobMessage = "Jobdesk berhasil disimpan.";
+    }
+
+    state.editingJobId = null;
     renderDashboard();
   } catch (error) {
-    alert(error.message);
+    state.jobMessage = error.message;
+    renderDashboard();
+  }
+}
+
+async function handleDeleteJob(jobId) {
+  const job = state.jobs.find((item) => Number(item.id) === Number(jobId));
+
+  if (!confirm(`Hapus jobdesk ${job?.computer_asset?.pc_name ?? "ini"}?`)) {
+    return;
+  }
+
+  try {
+    const response = await fetchJson(`/api/daily-jobs/${jobId}`, {
+      method: "DELETE",
+      body: JSON.stringify({
+        actor_id: state.currentUser.id,
+      }),
+    });
+
+    state.jobs = state.jobs.filter((item) => Number(item.id) !== Number(jobId));
+    state.jobMessage = response.message;
+    if (state.editingJobId === Number(jobId)) {
+      state.editingJobId = null;
+    }
+    renderDashboard();
+  } catch (error) {
+    state.jobMessage = error.message;
+    renderDashboard();
   }
 }
 
@@ -964,6 +1064,19 @@ function handleRekapFilterChange(event) {
     date: formData.get("date") || state.rekapFilter.date,
     week: formData.get("week") || state.rekapFilter.week,
     month: formData.get("month") || state.rekapFilter.month,
+  };
+
+  renderDashboard();
+}
+
+function handleDashboardFilterChange(event) {
+  const formData = new FormData(event.currentTarget);
+
+  state.dashboardFilter = {
+    period: formData.get("period") || "all",
+    date: formData.get("date") || state.dashboardFilter.date,
+    week: formData.get("week") || state.dashboardFilter.week,
+    month: formData.get("month") || state.dashboardFilter.month,
   };
 
   renderDashboard();

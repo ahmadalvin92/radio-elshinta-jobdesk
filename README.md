@@ -9,8 +9,10 @@ Develop by Alvin dan IT Support Tim 2026 with love.
 - Login admin dan user.
 - Role admin dan user.
 - Admin input jobdesk harian.
+- Admin edit dan delete jobdesk.
 - User approve atau reject jobdesk miliknya.
 - Dropdown user/komputer dari data inventaris komputer.
+- Dashboard dengan filter semua data, harian, mingguan, dan bulanan.
 - Rekap pekerjaan dengan filter semua data, harian, mingguan, dan bulanan.
 - Export rekap ke PDF dengan logo Radio Elshinta.
 - Manage user khusus admin.
@@ -315,6 +317,8 @@ POST   /api/users/{user}/reset-password
 GET    /api/computer-assets
 GET    /api/daily-jobs
 POST   /api/daily-jobs
+PUT    /api/daily-jobs/{dailyJob}
+DELETE /api/daily-jobs/{dailyJob}
 POST   /api/daily-jobs/{dailyJob}/approve
 POST   /api/daily-jobs/{dailyJob}/reject
 GET    /api/daily-jobs/export-pdf

@@ -199,6 +199,10 @@ Route::get('/daily-jobs', function () {
 });
 
 Route::post('/daily-jobs', function (Request $request) {
+    if ($response = requireAdmin($request)) {
+        return $response;
+    }
+
     $data = $request->validate([
         'job_date' => ['required', 'date'],
         'start_time' => ['nullable', 'date_format:H:i'],
@@ -216,6 +220,48 @@ Route::post('/daily-jobs', function (Request $request) {
     $job = DailyJob::create($data);
 
     return $job->load('computerAsset');
+});
+
+Route::put('/daily-jobs/{dailyJob}', function (Request $request, DailyJob $dailyJob) {
+    if ($response = requireAdmin($request)) {
+        return $response;
+    }
+
+    $data = $request->validate([
+        'job_date' => ['required', 'date'],
+        'start_time' => ['nullable', 'date_format:H:i'],
+        'end_time' => ['nullable', 'date_format:H:i'],
+        'computer_asset_id' => ['required', 'exists:computer_assets,id'],
+        'work_type' => ['required', 'string', 'max:120'],
+        'description' => ['required', 'string'],
+        'admin_id' => ['nullable', 'exists:users,id'],
+        'status' => ['nullable', Rule::in(['draft', 'pending', 'approved', 'rejected'])],
+    ]);
+
+    $data['day_name'] = Carbon::parse($data['job_date'])->locale('id')->dayName;
+    $data['status'] = $data['status'] ?? $dailyJob->status;
+
+    if ($data['status'] === 'pending') {
+        $data['approved_by'] = null;
+        $data['approved_at'] = null;
+        $data['rejected_reason'] = null;
+    }
+
+    $dailyJob->update($data);
+
+    return $dailyJob->load('computerAsset');
+});
+
+Route::delete('/daily-jobs/{dailyJob}', function (Request $request, DailyJob $dailyJob) {
+    if ($response = requireAdmin($request)) {
+        return $response;
+    }
+
+    $dailyJob->delete();
+
+    return [
+        'message' => 'Jobdesk berhasil dihapus.',
+    ];
 });
 
 Route::post('/daily-jobs/{dailyJob}/approve', function (DailyJob $dailyJob) {
