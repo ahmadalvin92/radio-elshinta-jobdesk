@@ -36,8 +36,8 @@ elshinta-jobdesk/
 
 Backend:
 
-- PHP 8.3+
-- Laravel 13
+- PHP 8.2+
+- Laravel 11
 - MySQL / MariaDB
 - Spatie Laravel Permission
 - Barryvdh Laravel DomPDF
@@ -64,7 +64,7 @@ Development tools:
 
 Pastikan sudah terinstall:
 
-- PHP 8.3 atau lebih baru
+- PHP 8.2 atau lebih baru
 - Composer
 - Node.js dan npm
 - XAMPP dengan MySQL/MariaDB aktif
@@ -131,6 +131,12 @@ Install dependency PHP:
 
 ```bash
 composer install
+```
+
+Project ini sudah dikunci agar dependency Composer kompatibel dengan PHP 8.2, jadi aman untuk XAMPP/hosting lokal kantor yang belum memakai PHP terbaru. Untuk server production, gunakan:
+
+```bash
+composer install --no-dev --optimize-autoloader
 ```
 
 Buat file `.env`:
