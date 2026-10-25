@@ -1,438 +1,201 @@
-# Radio Elshinta Jobdesk
+# 📻 Radio Elshinta Jobdesk & Daily Backup System
+### Internal IT Operations • Laravel 11 • PHP 8.2 • Vite • Vanilla JS • MySQL • DomPDF
 
-Radio Elshinta Jobdesk adalah aplikasi internal untuk mencatat pekerjaan harian IT Support, terutama backup, maintenance, pengecekan komputer, approval user, dan rekap PDF. Project ini dibuat dengan konsep backend dan frontend terpisah supaya lebih rapi dan mudah dikembangkan.
+Sistem informasi operasional internal untuk mencatat, memantau, dan merekap pekerjaan harian tim **IT Support Radio Elshinta**, terutama backup rutin database automation, pengecekan komputer divisi siaran, alur persetujuan pengguna (*User Approval Workflow*), serta cetak rekap operasional otomatis ke PDF berstandar resmi.
 
-Develop by Alvin dan IT Support Tim 2026 with love.
+---
 
-## Ringkasan sistem
+## 📸 Preview & Screenshots
 
-Aplikasi ini membantu tim IT Support mendokumentasikan pekerjaan operasional secara konsisten, meminta persetujuan pengguna, dan membuat rekap yang siap dibagikan. Backend Laravel menyediakan API dan ekspor PDF, sedangkan frontend Vite menyediakan dashboard yang digunakan sehari-hari.
+### 📊 Monitoring Jobdesk Harian (Admin Dashboard)
+<p align="center">
+  <img src="screenshots/dashboard-admin.png" alt="Radio Elshinta Jobdesk Dashboard" width="95%" />
+</p>
 
-| Bagian | Teknologi |
-| --- | --- |
-| Bahasa backend | PHP 8.2+ |
-| Framework backend | Laravel 11 |
-| Bahasa frontend | JavaScript, HTML, CSS |
-| Build tool | Vite |
-| Database | MySQL atau MariaDB |
-| Otorisasi | Spatie Laravel Permission |
-| Laporan | Barryvdh Laravel DomPDF |
+---
 
-## Alur penggunaan singkat
+### 🔐 Login & Autentikasi Pengguna
+<p align="center">
+  <img src="screenshots/login-page.png" alt="Halaman Login Radio Elshinta Jobdesk" width="95%" />
+</p>
 
-1. Admin membuat data inventaris komputer dan akun pengguna.
-2. Admin mencatat jobdesk harian lalu menetapkan pengguna yang terkait.
-3. Pengguna meninjau serta menyetujui atau menolak pekerjaannya.
-4. Admin memantau dashboard dan mengunduh rekap PDF berdasarkan periode.
+---
 
-## Fitur Utama
+### 📄 Rekap Laporan & Export PDF
+<p align="center">
+  <img src="screenshots/rekap-pdf.png" alt="Rekap PDF Siap Cetak" width="95%" />
+</p>
 
-- Login admin dan user.
-- Role admin dan user.
-- Admin input jobdesk harian.
-- Admin edit dan delete jobdesk.
-- User approve atau reject jobdesk miliknya.
-- Dropdown user/komputer dari data inventaris komputer.
-- Dashboard dengan filter semua data, harian, mingguan, dan bulanan.
-- Rekap pekerjaan dengan filter semua data, harian, mingguan, dan bulanan.
-- Export rekap ke PDF dengan logo Radio Elshinta.
-- Manage user khusus admin.
-- Tambah, edit, hapus user.
-- Reset password user ke `admin123`.
-- Ubah password untuk admin dan user setelah login.
-- Show/hide password di form login dan form password.
-- Dashboard modern dengan tema biru Radio Elshinta.
+---
 
-## Struktur Project
+### 👥 Manajemen User & Komputer Inventaris
+<p align="center">
+  <img src="screenshots/manage-users.png" alt="Manajemen User dan Komputer" width="95%" />
+</p>
 
-```txt
+---
+
+## 🔄 Alur Kerja Sistem (Workflow)
+
+```
+[ Admin / IT Support ] ───> Input Pekerjaan Harian (Backup, Maintenance, Troubleshooting)
+                                        │
+                                        ▼
+[ User / Divisi Terkait ] ───> Notifikasi & Review Pekerjaan di Dashboard
+                                        │
+                         ┌──────────────┴──────────────┐
+                         ▼                             ▼
+                 [ Setujui (Approve) ]        [ Tolak (Reject) ]
+                         │                             │
+                         └──────────────┬──────────────┘
+                                        ▼
+[ Admin / IT Supervisor ] ───> Filter Periode (Harian/Mingguan/Bulanan) ───> Export PDF Resmi
+```
+
+---
+
+## ✨ Fitur Utama
+
+- **🛡️ Multi-Role System**:
+  - **Admin (IT Support)**: Input pekerjaan, edit & delete tiket pekerjaan, mengelola master user, mereset password, dan cetak laporan rekap.
+  - **User (Studio / Redaksi / Traffic)**: Menerima laporan pekerjaan terkait komputer/divisi mereka, melakukan *Approval* atau *Reject* dengan catatan.
+- **🖥️ Integrasi Inventaris Komputer**: Relasi otomatis antara user dan nama PC/IP Address (misal PC-STUDIO-01, PC-REDAKSI-02).
+- **🖨️ Export PDF Resmi**: Pembuatan file PDF rekap pekerjaan lengkap dengan kop surat dan logo Radio Elshinta yang siap dicetak dan ditandatangani.
+- **📅 Filter Fleksibel**: Filter rekap pekerjaan berdasarkan Semua Data, Harian, Mingguan, dan Bulanan.
+- **🔒 Keamanan Akun**: Fitur ubah kata sandi mandiri dan reset password ke default `admin123` oleh admin.
+
+---
+
+## 🛠️ Tech Stack & Bahasa Pemrograman
+
+| Layer | Teknologi | Peran & Deskripsi |
+| :--- | :--- | :--- |
+| **Backend Framework** | `PHP 8.2+`, `Laravel 11` | REST API, Business Logic, Routing, Eloquent ORM, dan Session Auth |
+| **Frontend Runtime** | `JavaScript (ES Modules)`, `Vite` | SPA ringan, reactive UI state management tanpa bloatware framework |
+| **Styling & Theme** | `Modern CSS3` | Desain responsif bertema biru resmi Radio Elshinta |
+| **Database** | `MySQL / MariaDB` | Penyimpanan relasional terstruktur (Users, Daily Jobs, Assets) |
+| **PDF Engine** | `Barryvdh Laravel DomPDF` | Rendering HTML template ke PDF berkualitas tinggi |
+| **Role Authorization**| `Spatie Laravel Permission` | Pengaturan wewenang role `admin` dan `user` |
+
+---
+
+## 📁 Struktur Direktori
+
+```text
 elshinta-jobdesk/
-├── backend/   # Laravel API, auth sederhana, database, PDF export
-├── frontend/  # Vite frontend dashboard
-├── README.md
-└── .gitignore
+├── backend/                  # Laravel 11 Application
+│   ├── app/
+│   │   ├── Http/Controllers/ # User, DailyJob, Asset, Auth Controllers
+│   │   └── Models/          # Eloquent Models (User, DailyJob, Asset)
+│   ├── database/
+│   │   ├── migrations/      # DDL skema database
+│   │   └── seeders/         # Data master awal & akun demo
+│   ├── resources/views/     # Template Blade untuk cetak PDF
+│   ├── routes/api.php       # Endpoint REST API
+│   └── .env.example
+├── frontend/                 # Vite Frontend SPA
+│   ├── src/
+│   │   ├── main.js          # Logic SPA, routing, state, dan event handlers
+│   │   └── styles.css       # Token styling & theme Radio Elshinta
+│   ├── public/              # Aset statis & logo Elshinta
+│   ├── index.html           # HTML container
+│   ├── package.json
+│   └── vite.config.js
+├── screenshots/             # Dokumentasi screenshot sistem
+├── elshinta_jobdesk.sql     # Dump SQL database cadangan
+├── package.json             # Root runner scripts
+└── README.md
 ```
 
-## Teknologi
+---
 
-Backend:
+## ⚙️ Prasyarat Sistem
 
-- PHP 8.2+
-- Laravel 11
-- MySQL / MariaDB
-- Spatie Laravel Permission
-- Barryvdh Laravel DomPDF
+Sebelum menjalankan aplikasi, pastikan komputer Anda telah terinstal:
+- **PHP**: Versi `8.2` atau lebih baru (ekstensi: `pdo_mysql`, `mbstring`, `openssl`, `gd`)
+- **Composer**: Versi `2.x`
+- **Node.js**: Versi `18.x` atau `20.x` LTS
+- **MySQL / MariaDB**: Server database lokal aktif (XAMPP atau Homebrew)
 
-Frontend:
+---
 
-- JavaScript
-- Vite
-- HTML
-- CSS
+## 🚀 Panduan Instalasi & Menjalankan Lokal
 
-Database:
-
-- MySQL atau MariaDB
-- Bisa dikelola melalui XAMPP phpMyAdmin
-
-Development tools:
-
-- Composer
-- Node.js dan npm
-- XAMPP untuk MySQL lokal
-
-## Persyaratan Instalasi
-
-Pastikan sudah terinstall:
-
-- PHP 8.2 atau lebih baru
-- Composer
-- Node.js dan npm
-- XAMPP dengan MySQL/MariaDB aktif
-- Git
-
-Untuk macOS dengan XAMPP, MySQL biasanya tersedia di:
-
-```txt
-/Applications/XAMPP/xamppfiles/bin/mysql
-```
-
-## Cara Clone Project
-
-Clone dari GitHub:
-
+### 1. Clone Repositori
 ```bash
-git clone https://github.com/USERNAME/radio-elshinta-jobdesk.git
+git clone https://github.com/ahmadalvin92/radio-elshinta-jobdesk.git
 cd radio-elshinta-jobdesk
 ```
 
-Ganti `USERNAME` dengan username GitHub pemilik repo.
-
-## Setup Database MySQL
-
-Buka XAMPP dan nyalakan MySQL.
-
-Buat database lewat phpMyAdmin:
-
-```txt
-http://localhost/phpmyadmin
-```
-
-Nama database:
-
-```txt
-elshinta_jobdesk
-```
-
-Atau buat lewat terminal macOS:
-
-```bash
-/Applications/XAMPP/xamppfiles/bin/mysql -h127.0.0.1 -P3306 -uroot -e "CREATE DATABASE IF NOT EXISTS elshinta_jobdesk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-```
-
-Konfigurasi database lokal:
-
-```txt
-Database: elshinta_jobdesk
-Host: 127.0.0.1
-Port: 3306
-Username: root
-Password: kosong
-```
-
-## Setup Backend Laravel
-
-Masuk ke folder backend:
-
-```bash
-cd backend
-```
-
-Install dependency PHP:
-
-```bash
-composer install
-```
-
-Project ini sudah dikunci agar dependency Composer kompatibel dengan PHP 8.2, jadi aman untuk XAMPP/hosting lokal kantor yang belum memakai PHP terbaru. Untuk server production, gunakan:
-
-```bash
-composer install --no-dev --optimize-autoloader
-```
-
-Buat file `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` backend menjadi:
-
-```env
-APP_NAME="Elshinta Jobdesk"
-APP_URL=http://127.0.0.1:8000
-FRONTEND_URL=http://127.0.0.1:5173
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=elshinta_jobdesk
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-Generate app key:
-
-```bash
-php artisan key:generate
-```
-
-Clear config:
-
-```bash
-php artisan config:clear
-```
-
-Migrasi dan isi data awal:
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-Jalankan backend:
-
-```bash
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-Backend akan berjalan di:
-
-```txt
-http://127.0.0.1:8000
-```
-
-Cek backend:
-
-```txt
-http://127.0.0.1:8000/api/health
-```
-
-Jika port `8000` sudah dipakai, Laravel bisa jalan di `8001`. Frontend sudah dibuat bisa fallback ke `8001`.
-
-## Setup Frontend
-
-Buka terminal baru, lalu masuk ke folder frontend:
-
-```bash
-cd frontend
-```
-
-Install dependency:
-
-```bash
-npm install
-```
-
-Buat file `.env` frontend:
-
-```bash
-cp .env.example .env
-```
-
-Isi `.env` frontend:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8000
-```
-
-Kalau backend jalan di port `8001`, ubah menjadi:
-
-```env
-VITE_API_BASE_URL=http://127.0.0.1:8001
-```
-
-Jalankan frontend:
-
-```bash
-npm run dev
-```
-
-Frontend akan berjalan di:
-
-```txt
-http://127.0.0.1:5173
-```
-
-## Cara Menjalankan Harian
-
-Terminal 1 untuk backend:
-
-```bash
-cd /Users/macbook/elshinta-jobdesk/backend
-php artisan config:clear
-php artisan serve --host=127.0.0.1 --port=8000
-```
-
-Terminal 2 untuk frontend:
-
-```bash
-cd /Users/macbook/elshinta-jobdesk/frontend
-npm run dev
-```
-
-Buka:
-
-```txt
-http://127.0.0.1:5173
-```
-
-## Akun Default
-
-Password awal semua akun:
-
-```txt
-admin123
-```
-
-Admin:
-
-```txt
-alvin@elshinta.local
-zulhendri@elshinta.local
-badru@elshinta.local
-saiful@elshinta.local
-faiz@elshinta.local
-```
-
-User dibuat otomatis dari data komputer. Contoh:
-
-```txt
-medsos-2@elshinta.local
-user-mushli@elshinta.local
-administrator-rohmat@elshinta.local
-```
-
-Di halaman login, akun bisa dipilih dari dropdown.
-
-## Logo Radio Elshinta
-
-Logo frontend:
-
-```txt
-frontend/public/logo-elshinta.png
-```
-
-Logo PDF backend:
-
-```txt
-backend/public/logo-elshinta.png
-```
-
-Jika logo diganti, pastikan kedua file tersebut ikut diperbarui.
-
-## API Utama
-
-```txt
-GET    /api/health
-POST   /api/login
-POST   /api/change-password
-GET    /api/users
-POST   /api/users
-PUT    /api/users/{user}
-DELETE /api/users/{user}
-POST   /api/users/{user}/reset-password
-GET    /api/computer-assets
-GET    /api/daily-jobs
-POST   /api/daily-jobs
-PUT    /api/daily-jobs/{dailyJob}
-DELETE /api/daily-jobs/{dailyJob}
-POST   /api/daily-jobs/{dailyJob}/approve
-POST   /api/daily-jobs/{dailyJob}/reject
-GET    /api/daily-jobs/export-pdf
-```
-
-Contoh export PDF semua data:
-
-```txt
-http://127.0.0.1:8000/api/daily-jobs/export-pdf?period=all
-```
-
-Contoh export PDF harian:
-
-```txt
-http://127.0.0.1:8000/api/daily-jobs/export-pdf?period=day&date=2026-04-30
-```
-
-Contoh export PDF mingguan:
-
-```txt
-http://127.0.0.1:8000/api/daily-jobs/export-pdf?period=week&week=2026-W18
-```
-
-Contoh export PDF bulanan:
-
-```txt
-http://127.0.0.1:8000/api/daily-jobs/export-pdf?period=month&month=2026-04
-```
-
-## Build Production
-
-Build frontend:
-
-```bash
-cd frontend
-npm run build
-```
-
-Output frontend ada di:
-
-```txt
-frontend/dist
-```
-
-## Testing
-
-Test backend:
-
-```bash
-cd backend
-php artisan test
-```
-
-Build check frontend:
-
-```bash
-cd frontend
-npm run build
-```
-
-## Troubleshooting
-
-Jika backend gagal jalan karena port dipakai:
-
-```bash
-lsof -ti :8000 | xargs kill -9
-```
-
-Jika frontend gagal jalan karena port dipakai:
-
-```bash
-lsof -ti :5173 | xargs kill -9
-```
-
-Jika dropdown login tidak muncul:
-
-- Pastikan backend Laravel sedang berjalan.
-- Pastikan MySQL XAMPP aktif.
-- Pastikan database `elshinta_jobdesk` sudah dibuat.
-- Jalankan ulang:
-
-```bash
-cd backend
-php artisan config:clear
-php artisan migrate:fresh --seed
-```
-
-## Catatan Keamanan
-
-Project ini memakai auth sederhana berbasis API lokal untuk kebutuhan internal. Untuk production publik, sebaiknya ditingkatkan dengan Laravel Sanctum/session auth, CSRF protection penuh, dan konfigurasi deployment yang lebih ketat.
+### 2. Setup Database
+1. Buat database baru di MySQL dengan nama `elshinta_jobdesk`:
+   ```sql
+   CREATE DATABASE elshinta_jobdesk;
+   ```
+2. Anda dapat mengimpor file `elshinta_jobdesk.sql` ke database tersebut, atau menjalankan migrasi Laravel pada langkah berikutnya.
+
+### 3. Setup Backend (Laravel)
+1. Masuk ke folder `backend`:
+   ```bash
+   cd backend
+   composer install
+   ```
+2. Buat file `.env`:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+3. Sesuaikan konfigurasi database pada `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=elshinta_jobdesk
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+4. Jalankan migrasi dan seeder:
+   ```bash
+   php artisan migrate --seed
+   ```
+5. Jalankan server Laravel:
+   ```bash
+   php artisan serve --port=8000
+   ```
+   *Backend aktif di `http://127.0.0.1:8000`.*
+
+### 4. Setup Frontend (Vite)
+1. Buka jendela terminal baru dan masuk ke folder `frontend`:
+   ```bash
+   cd frontend
+   npm install
+   ```
+2. Buat file `.env` (opsional bila backend berjalan di port 8000):
+   ```env
+   VITE_API_BASE_URL="http://127.0.0.1:8000"
+   ```
+3. Jalankan server pengembangan Vite:
+   ```bash
+   npm run dev
+   ```
+4. Buka browser di [http://localhost:5173](http://localhost:5173) atau port yang ditampilkan oleh Vite.
+
+---
+
+## 🔑 Kredensial Default Akun
+
+Semua akun default memiliki kata sandi awal: `admin123`
+
+| Akun | Peran | Deskripsi |
+| :--- | :--- | :--- |
+| **Alvin** | `Admin` | IT Support Administrator |
+| **Studio 1** | `User` | Komputer siaran utama |
+| **Redaksi** | `User` | Komputer jurnalis pemberitaan |
+
+---
+
+## 👨‍💻 Author & Credits
+
+**Ahmad Alvin Griffin** & **Tim IT Support Radio Elshinta 2026 with love**  
+- GitHub: [@ahmadalvin92](https://github.com/ahmadalvin92)
+- Lokasi: Jakarta, Indonesia
