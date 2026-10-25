@@ -4,6 +4,27 @@ Radio Elshinta Jobdesk adalah aplikasi internal untuk mencatat pekerjaan harian 
 
 Develop by Alvin dan IT Support Tim 2026 with love.
 
+## Ringkasan sistem
+
+Aplikasi ini membantu tim IT Support mendokumentasikan pekerjaan operasional secara konsisten, meminta persetujuan pengguna, dan membuat rekap yang siap dibagikan. Backend Laravel menyediakan API dan ekspor PDF, sedangkan frontend Vite menyediakan dashboard yang digunakan sehari-hari.
+
+| Bagian | Teknologi |
+| --- | --- |
+| Bahasa backend | PHP 8.2+ |
+| Framework backend | Laravel 11 |
+| Bahasa frontend | JavaScript, HTML, CSS |
+| Build tool | Vite |
+| Database | MySQL atau MariaDB |
+| Otorisasi | Spatie Laravel Permission |
+| Laporan | Barryvdh Laravel DomPDF |
+
+## Alur penggunaan singkat
+
+1. Admin membuat data inventaris komputer dan akun pengguna.
+2. Admin mencatat jobdesk harian lalu menetapkan pengguna yang terkait.
+3. Pengguna meninjau serta menyetujui atau menolak pekerjaannya.
+4. Admin memantau dashboard dan mengunduh rekap PDF berdasarkan periode.
+
 ## Fitur Utama
 
 - Login admin dan user.
